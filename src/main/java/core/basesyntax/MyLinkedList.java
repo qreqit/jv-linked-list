@@ -3,7 +3,7 @@ package core.basesyntax;
 import java.util.List;
 
 public class MyLinkedList<T> implements MyLinkedListInterface<T> {
-    private int size = 0;
+    private int size;
     private Node<T> tail;
     private Node<T> head;
 
@@ -25,7 +25,7 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     @Override
     public void add(T value, int index) {
         if (index < 0 || index > size) {
-            throw new IndexOutOfBoundsException("Can't find value with index: " + index);
+            throw new IndexOutOfBoundsException("Can't add value with index: " + index);
         }
 
         if (index == size) {
@@ -33,14 +33,13 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
             return;
         }
 
-        Node<T> currentNode = returnNodeByIndex(index);
+        Node<T> currentNode = findNodeByIndex(index);
         Node<T> newNode = new Node<>(currentNode.prev, value, currentNode);
 
         if (currentNode.prev == null) {
             head = newNode;
         } else {
             currentNode.prev.next = newNode;
-
         }
 
         currentNode.prev = newNode;
@@ -56,12 +55,12 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
 
     @Override
     public T get(int index) {
-        return returnNodeByIndex(index).value;
+        return findNodeByIndex(index).value;
     }
 
     @Override
     public T set(T value, int index) {
-        Node<T> currentNode = returnNodeByIndex(index);
+        Node<T> currentNode = findNodeByIndex(index);
         T removerValue = currentNode.value;
         currentNode.value = value;
         return removerValue;
@@ -69,11 +68,9 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
 
     @Override
     public T remove(int index) {
-        if (index >= size || index < 0) {
-            throw new IndexOutOfBoundsException("Incottect index: " + index);
-        }
+        validateIndex(index);
 
-        Node<T> currentNode = returnNodeByIndex(index);
+        Node<T> currentNode = findNodeByIndex(index);
         T removedValue = currentNode.value;
 
         checkPlaceAndRemoveNode(currentNode);
@@ -125,15 +122,19 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         }
     }
 
-    private Node<T> returnNodeByIndex(int index) {
+    private Node<T> findNodeByIndex(int index) {
         Node<T> currentNode = head;
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Can't find value with index: " + index);
-        }
+        validateIndex(index);
         for (int i = 0; i < index; i++) {
             currentNode = currentNode.next;
         }
         return currentNode;
+    }
+
+    private void validateIndex(int index) {
+        if (index >= size || index < 0) {
+            throw new IndexOutOfBoundsException("Incottect index: " + index);
+        }
     }
 
     private static class Node<T> {
